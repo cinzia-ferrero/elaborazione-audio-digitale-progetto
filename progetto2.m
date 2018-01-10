@@ -61,8 +61,7 @@
 % xa_trasl=xa_trasl';
 % end
 
-y = [];
-xa_no_silence = clean_silence(xav,xa_trasl,60*freq,freq,y);
+xa_no_silence = clean_silence(xav, xa_trasl, 60*freq, freq);
 fprintf('++++++++++++++++++end++++++++++++++++++++++\n');
 audiowrite('prova y.wav', xa_no_silence, freq);
 
