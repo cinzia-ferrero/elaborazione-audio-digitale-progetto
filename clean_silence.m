@@ -1,37 +1,35 @@
-function [result] = clean_silence(video,audio,sub_width,freq,y)
-    fprintf('call function lenght video = %d, sub_width = %d\n', length(video), sub_width);
+function [result] = clean_silence(video, audio, sub_width, freq, y)
+    fprintf('call function sub_width/freq = %d\n', sub_width/freq);
     
-    len = length(video);
-    p = 0;
-    epsilon = 0.2;   % tolleranza
+    i = 0;
+    epsilon = 0.2; % tolleranza
+    threshold = 0.5; % al di sotto di 0.5s il ritardo non viene considerato
     result = [];
    
-    while p+sub_width<len
+    while (i + sub_width) < length(video)
     
-        xav_frame=video(p+1:p+sub_width);
-        xa_frame=audio(p+1:p+sub_width);
+        xav_frame = video(i+1:i+sub_width);
+        xa_frame = audio(i+1:i+sub_width);
 
-        [corr,lag]=xcorr(xav_frame,xa_frame);
-        [~,I]=max(abs(corr));
-        lagDiff=lag(I);
-        rit=lagDiff/freq;
-        % sub_width/freq e' il ritardo di prima
-        % continua a cercare finche' il ritardo e' sopra la tolleranza di 0.2 secondi
+        [corr,lag] = xcorr(xav_frame, xa_frame);
+        [~,I] = max(abs(corr));
+        lagDiff = lag(I);
+        delay = lagDiff/freq;
         
-        if abs(rit)<=0.5 %no silenzio          
-            %fprintf('len+1:len+sub_width=%d:%d\n', length(result)+1, length(result)+sub_width);
+        if abs(delay) <= threshold
+            % nessun ritardo considerevole
             result = cat(1, result, xa_frame);
-            %result(length(result)+1:length(result)+sub_width)=xa_frame;
             
-        elseif abs(abs(rit)-sub_width/freq) > epsilon
-            fprintf('rit = %d\n', rit);
-            z = clean_silence(xav_frame,xa_frame, round(abs(rit)*freq), freq, y);
-            %fprintf('length result 1 = %d\n', length(result));
+        elseif abs( abs(delay) - sub_width/freq ) > epsilon 
+            % c'è un ritardo ed è diverso da quello precedente (sub_width),
+            % a meno di una tolleranza --> quindi continua a suddividere
+            fprintf('delay = %d\n', delay);
+            z = clean_silence(xav_frame, xa_frame, round(abs(delay)*freq), freq, y);
             result = cat(1, result, z);
-            fprintf('length result 2 = %d\n', length(result));
-            %result(length(result)+1:length(result)+length(z)) = z;
+            
         end
-        p=p+sub_width;
+        
+        i = i + sub_width;
     end
 end
 
