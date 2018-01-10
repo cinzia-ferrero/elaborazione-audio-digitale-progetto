@@ -64,36 +64,3 @@
 xa_no_silence = clean_silence(xav, xa_trasl, 60*freq, freq);
 fprintf('++++++++++++++++++end++++++++++++++++++++++\n');
 audiowrite('prova y.wav', xa_no_silence, freq);
-
-% sec=60;
-% l_frame=freq*sec;
-% overlap=1/3;
-% p=0;
-% 
-% while p+l_frame<l
-%     
-%     xav_frame=xav(p+1:p+l_frame);
-%     xa_frame=xa_trasl(p+1:p+l_frame);
-% %     figure
-% %     plot(xav_frame)
-% %     figure
-% %     plot(xa_frame)
-%     [corr,lag]=xcorr(xav_frame,xa_frame);
-%     [~,I]=max(abs(corr));
-%     lagDiff=lag(I);
-%     rit=lagDiff/freq;
-%     
-%     if abs(rit)<=0.5 %no silenzio
-%         
-%         y(p+1:p+l_frame)=xa_frame;
-%     end
-%     
-%     if abs(rit)>=0.5 %silenzio aggiunto o deriva
-%         
-%         
-%     end
-%     
-%     
-%     p=p+overlap*l_frame;
-% end
-% 

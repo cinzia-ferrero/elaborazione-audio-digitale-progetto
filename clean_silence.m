@@ -1,8 +1,8 @@
 function [result] = clean_silence(video, audio, sub_width, freq)
     fprintf('call function sub_width/freq = %d\n', sub_width/freq);
     
-    epsilon = 0.2; % tolleranza
-    threshold = 0.5; % al di sotto di 0.5s il ritardo non viene considerato
+    epsilon = 0.02; % tolleranza
+    threshold = 0.8; % al di sotto di 0.8s il ritardo non viene considerato
     result = [];
     
     fprintf('length(video)/sub_width = %d\n', length(video)/sub_width);
@@ -31,7 +31,7 @@ function [result] = clean_silence(video, audio, sub_width, freq)
         delay = lagDiff/freq;
         
         if abs(delay) <= threshold
-            % nessun ritardo considerevole
+            % nessun ritardo considerevole, salviamo il frame
             result = cat(1, result, xa_frame);
             
         elseif abs( abs(delay) - sub_width/freq ) > epsilon
