@@ -1,9 +1,10 @@
-function [result] = clean_silence(video, audio, sub_width, freq)
+function [result, silence] = clean_silence(video, audio, sub_width, freq)
     fprintf('call function sub_width/freq = %d\n', sub_width/freq);
     
-    epsilon = 0.02; % tolleranza
+    epsilon = 0.01; % tolleranza
     threshold = 0.8; % al di sotto di 0.8s il ritardo non viene considerato
     result = [];
+    silence = [];
     
     fprintf('length(video)/sub_width = %d\n', length(video)/sub_width);
     
@@ -30,6 +31,10 @@ function [result] = clean_silence(video, audio, sub_width, freq)
         lagDiff = lag(I);
         delay = lagDiff/freq;
         
+        if abs(delay) > threshold & abs( abs(delay) - sub_width/freq ) <= epsilon
+            silence = cat(1, silence, xa_frame);
+        end
+        
         if abs(delay) <= threshold
             % nessun ritardo considerevole, salviamo il frame
             result = cat(1, result, xa_frame);
@@ -38,8 +43,9 @@ function [result] = clean_silence(video, audio, sub_width, freq)
             % c'è un ritardo ed è diverso da quello precedente (sub_width),
             % a meno di una tolleranza --> quindi continua a suddividere
             fprintf('delay = %d\n', delay);
-            z = clean_silence(xav_frame, xa_frame, round(abs(delay)*freq), freq);
+            [z, s] = clean_silence(xav_frame, xa_frame, round(abs(delay)*freq), freq);
             result = cat(1, result, z);
+            silence = cat(1, silence, s);
             
         end
         
