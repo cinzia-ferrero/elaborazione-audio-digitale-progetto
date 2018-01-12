@@ -1,14 +1,14 @@
-l_frame = freq*60;
+maxlength = max(length(xa_trasl),length(xav));
+
+frame_len = freq*60;
 p = 0;
 global_delay = [];
 i = 0;
-%x4=xa_trasl(1:floor(length(xa_trasl)/4));
-%y4=xav(1:floor(length(xav)/4));
 
-while p+l_frame < l
+while p+frame_len < maxlength
     
-    audio_frame = xa_trasl(p+1 : p+l_frame);
-    video_frame = xav(p+1 : p+l_frame);
+    audio_frame = xa_trasl(p+1 : p+frame_len);
+    video_frame = xav(p+1 : p+frame_len);
     
     [corr,lag] = xcorr(audio_frame, video_frame);
     [~,I] = max(abs(corr));

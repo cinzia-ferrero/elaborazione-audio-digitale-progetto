@@ -1,12 +1,12 @@
-clc
-clear all;
-close all;
-
-[xav,freq]= audioread('EAD18-20171025A.mp4');
-% plot(xav);
-xa = audioread('EAD18-20171025A.3gpp');
-% plot(xa);
-fprintf('files read\n');
+% clc
+% clear all;
+% close all;
+% 
+% [xav,freq]= audioread('EAD18-20171025A.mp4');
+% % plot(xav);
+% xa = audioread('EAD18-20171025A.3gpp');
+% % plot(xa);
+% fprintf('files read\n');
 
 % RITARDO tramite la cross-correlation
 
@@ -14,13 +14,15 @@ frame_dim = freq*60*1; %dimensione del frame audio-video
 
 xav_frame = xav(1:frame_dim);
 
-cont=0; %serve per capire quando troviamo convergenza
-i=0;
+cont = 0; %serve per capire quando troviamo convergenza
+i = 0;
 
 while cont<8
+    
     xa_frame = xa(1:0.5*frame_dim*(i+1));
-    [acor,lag] = xcorr(xav_frame,xa_frame);
-    [~,I] = max(abs(acor));
+    
+    [corr,lag] = xcorr(xav_frame,xa_frame);
+    [~,I] = max(abs(corr));
     lagDiff = lag(I);
     lagTime(i+1) = lagDiff/freq;
     
@@ -46,8 +48,8 @@ plot(xav,'r')
 % plot(corr)
 fprintf('******* DONE sync *******\n');
 
-audiowrite('xav.wav', xav, freq);
-audiowrite('xa_trasl.wav', xa_trasl, freq);
+% audiowrite('xav.wav', xav, freq);
+% audiowrite('xa_trasl.wav', xa_trasl, freq);
 
 % Analisi per frame (silenzi e deriva)
 

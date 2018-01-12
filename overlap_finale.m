@@ -1,18 +1,4 @@
-%suddividere intervalli
-%pezzo giusto silenzio?
 
-audio_length = length(xa_trasl);
-video_length = length(xav);
-maxlength = max(audio_length,video_length);
-
-if maxlength == audio_length
-    xav = [xav', zeros(maxlength - video_length, 1)'];
-    xav = xav';
-end
-if maxlength == video_length
-    xa_trasl = [xa_trasl', zeros(maxlength - audio_length, 1)'];
-    xa_trasl = xa_trasl';
-end
 
 sec=input('inserire durata frame in s per analisi ');
 l_frame=freq*sec; % lunghezza frame per ciclo while esterno
@@ -20,6 +6,8 @@ p=0; % contatore ciclo while esterno
 
 xa_cleaned = xa_trasl;
 silence=[];
+num_silence=0;  %contatore silenzi
+maxlength = max(length(xav), length(xa_cleaned));
 
 for p=0:l_frame:maxlength
     
@@ -39,6 +27,7 @@ for p=0:l_frame:maxlength
     [~,I]=max(abs(corr));
     lagDiff=lag(I);
     rit=lagDiff/freq;
+    fprintf('rit = %d\n', rit);
     
     if abs(rit)>=0.5 %silenzio aggiunto, raffiniamo il frame
         
@@ -47,7 +36,8 @@ for p=0:l_frame:maxlength
          i=0;
          k=0;
          epsilon = 0.1;
-         while i+overlap < 2*l_frame % cerchiamo il frame con il silenzio
+         while i+overlap < 2*l_frame % cerchiamo il frame con il silenzio 
+                                      % e partiamo da quello precedente 
               aud = xa_cleaned(p-l_frame+i+1 : p+i);
               vid = xav(p-l_frame+i+1 : p+i);
               
@@ -99,9 +89,10 @@ for p=0:l_frame:maxlength
                   end
                   
                   [~,ind]=max(scalare);
-                  silence = xa_cleaned(p-l_frame+i+1-(ind-1)*lagDiff+1 : p-l_frame+i-ind*lagDiff);
-                  xa_cleaned=[xa_cleaned(1:p-l_frame+i+1-(ind-1)*lagDiff)' xa_cleaned(p-l_frame+i+1-ind*lagDiff:end)'];
-                  
+                  silence =[silence' xa_cleaned(p-l_frame+i+1-(ind-1)*lagDiff : p-l_frame+i-ind*lagDiff)'];
+                  xa_cleaned=[xa_cleaned(1:p-l_frame+i-(ind-1)*lagDiff)' xa_cleaned(p-l_frame+i+1-ind*lagDiff:end)'];
+                  num_silence=num_silence+1;
+                  fprintf('silenzi tolti = %d\n', num_silence);
                   maxlength = max(length(xav), length(xa_cleaned));
                   i=2*l_frame; % break while
                  
