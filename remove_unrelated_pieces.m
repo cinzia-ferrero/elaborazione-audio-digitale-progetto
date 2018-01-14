@@ -1,4 +1,4 @@
-function [xa_cleaned, silence_indexes] = remove_unrelated_pieces(freq, xav, xa_trasl, l_frame)
+function [xa_cleaned, silence_indexes] = remove_unrelated_pieces(freq, xav, xa_trasl, flag_plot, l_frame)
     fprintf('Starting to remove unrelated pieces....\n');
 
     xa_cleaned = xa_trasl;
@@ -106,6 +106,12 @@ function [xa_cleaned, silence_indexes] = remove_unrelated_pieces(freq, xav, xa_t
 
              end
         end
+    end
+    
+    if flag_plot == 1
+        figure
+        plot(xa_cleaned,'b')
+        title('Audio without unrelated pieces');
     end
     
     fprintf('****   END removal   ****\n');

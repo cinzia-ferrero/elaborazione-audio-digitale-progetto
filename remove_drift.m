@@ -1,4 +1,4 @@
-function [xa_fin, deriva, length_analysis] = remove_drift(xav, xa_cleaned, l_frame)
+function [xa_fin, deriva, length_analysis] = remove_drift(xav, xa_cleaned, flag_plot, l_frame)
     fprintf('Starting to remove drift....\n');
 
     length_analysis = min(length(xav),length(xa_cleaned));
@@ -63,6 +63,12 @@ function [xa_fin, deriva, length_analysis] = remove_drift(xav, xa_cleaned, l_fra
                    k=k+samples_aud+1;
                end
         end
+    end
+    
+    if flag_plot == 1
+        figure
+        plot(xa_cleaned,'b')
+        title('Audio without deviation');
     end
     
     fprintf('****   END removal   ****\n');

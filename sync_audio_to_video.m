@@ -1,5 +1,5 @@
 function [xa_trasl, shift] = sync_audio_to_video(freq, xav, xa, flag_plot, l_frame)
-    fprintf('Starting to sync....\n');
+    fprintf('Starting to synchronize....\n');
 
     xav_frame = xav(1:l_frame);
     cont = 0; %serve per capire quando troviamo convergenza
@@ -31,11 +31,16 @@ function [xa_trasl, shift] = sync_audio_to_video(freq, xav, xa, flag_plot, l_fra
     
     if flag_plot == 1
         figure
-        plot(xa_trasl,'b')
-        figure
         plot(xav,'r')
+        title('Audio track from video file');
+        figure
+        plot(xa,'b')
+        title('Audio track from audio file');
+        figure
+        plot(xa_trasl,'b')
+        title('Audio synchronized');
     end
     
-    fprintf('****   END syncing   ****\n');
+    fprintf('****   END synchronization   ****\n');
 
 end
