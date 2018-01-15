@@ -1,20 +1,14 @@
-% per input sec di 30 si rompe
+clc
+clear all;
+close all;
 
-
-
-
-% clc
-% clear all;
-% close all;
+video_file_name = 'EAD18-20171025A.mp4';
+audio_file_name = 'EAD18-20171025A.3gpp';
+[xav, xa, freq] = load_files(video_file_name, audio_file_name);
 
 tic;
 
-% [xav,freq] = audioread('EAD18-20171025A.mp4');
-% xa = audioread('EAD18-20171025A.3gpp');
-% fprintf('files read\n');
-
-sec = input('Inserire durata frame in s per analisi ');
-l_frame = freq*sec; % lunghezza frame per ciclo while esterno
+l_frame = freq*60; % lunghezza frame in campioni per l'analisi
 
 flag_plot = input('Inserisci 1 per plottare tracce, 0 altrimenti ');
 [xa_trasl, shift] = sync_audio_to_video(freq, xav, xa, flag_plot, l_frame);

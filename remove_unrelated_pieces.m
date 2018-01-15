@@ -2,7 +2,7 @@ function [xa_cleaned, silence_indexes] = remove_unrelated_pieces(freq, xav, xa_t
     fprintf('Starting to remove unrelated pieces....\n');
 
     xa_cleaned = xa_trasl;
-    %silence = [];
+    silence = [];
     num_silence = 0;  %contatore silenzi
     silence_indexes = [];
     maxlength = max(length(xav), length(xa_cleaned));
@@ -48,37 +48,40 @@ function [xa_cleaned, silence_indexes] = remove_unrelated_pieces(freq, xav, xa_t
                   lagDiff = lag(I);
                   delay(k+1) = lagDiff/freq;
 
-                  if k>0 && abs(delay(k)-delay(k+1)) > epsilon
+                  if k > 0  &&  abs(delay(k)-delay(k+1)) > epsilon
                       % trovato il frame con il silenzio
 
                       lagDiff = lagDiff - delay(k)*freq; % correzione del ritardo per non togliere la deriva
-
+                      fs = p-l_frame+i+1;
+                      fe = p+i-lagDiff;
+                      overlap = 0.5;
+                      shift = round(lagDiff*overlap);
+                      
                       scalare = [];
                       removed_aud = [];
                       j = 0;
-                      while -j*lagDiff < l_frame
+                      while -j*shift < l_frame
 
                           if j == 0
-                             removed_aud = xa_cleaned(p-l_frame+i+1-lagDiff:p+i-lagDiff);
+                              removed_aud = xa_cleaned(fs-lagDiff : fe);
                           else
-                              removed_aud = [xa_cleaned(p-l_frame+i+1:p-l_frame+i-j*lagDiff)' xa_cleaned(p-l_frame+i+1-(j+1)*lagDiff:p+i-lagDiff)'];
+                              removed_aud = [xa_cleaned(fs : fs-j*shift)' xa_cleaned(fs-(j+1/overlap)*shift : fe)'];
                           end
 
                           % normalizzazione
                           removed_aud = removed_aud/max(abs(removed_aud));
 
                           % sogliatura
-                          soglia=0.02;
-                          thresh_aud=zeros(length(removed_aud),1);
-                          thresh_vid=zeros(length(vid),1);
+                          soglia = 0.02;
+                          thresh_aud = zeros(length(removed_aud),1);
+                          thresh_vid = zeros(length(vid),1);
 
                           for m = 1 : length(removed_aud)
-                              if abs(removed_aud(m))>soglia
-                                  thresh_aud(m)=1;
+                              if abs(removed_aud(m)) > soglia
+                                  thresh_aud(m) = 1;
                               end
-                               if abs(vid(m))>soglia
-
-                                   thresh_vid(m)=1;
+                              if abs(vid(m)) > soglia
+                                  thresh_vid(m) = 1;
                               end
                           end
 
@@ -89,12 +92,12 @@ function [xa_cleaned, silence_indexes] = remove_unrelated_pieces(freq, xav, xa_t
 
                       [~,ind] = max(scalare);
 
-                      %silence = [silence' xa_cleaned(p-l_frame+i+1-(ind-1)*lagDiff : p-l_frame+i-ind*lagDiff)'];
+                      silence = [silence xa_cleaned(fs+1-(ind-1)*shift : (fs-1)-(ind-1+1/overlap)*shift)'];
                       num_silence = num_silence+1;
                       fprintf('silenzi tolti = %d\n', num_silence);
-                      silence_indexes(num_silence, :) = [p-l_frame+i+1-(ind-1)*lagDiff, p-l_frame+i-ind*lagDiff];
+                      silence_indexes(num_silence, :) = [fs-(ind-1)*shift, (fs-1)-(ind-1+1/overlap)*shift];
 
-                      xa_cleaned = [xa_cleaned(1:p-l_frame+i-(ind-1)*lagDiff)' xa_cleaned(p-l_frame+i+1-ind*lagDiff:end)'];
+                      xa_cleaned = [xa_cleaned(1 : fs-(ind-1)*shift)' xa_cleaned(fs-(ind-1+1/overlap)*shift : end)'];
 
                       maxlength = max(length(xav), length(xa_cleaned));
                       i = 2*l_frame; % break while
@@ -112,6 +115,9 @@ function [xa_cleaned, silence_indexes] = remove_unrelated_pieces(freq, xav, xa_t
         figure
         plot(xa_cleaned,'b')
         title('Audio without unrelated pieces');
+        figure
+        plot(silence, 'g')
+        title('Removed unrelated pieces');
     end
     
     fprintf('****   END removal   ****\n');
