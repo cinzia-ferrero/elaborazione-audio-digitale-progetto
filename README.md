@@ -11,38 +11,25 @@ Il risultato finale è la traccia audio dello smartphone adattata e sincronizzat
 
 ## Esempio
 
-    clc
-    clear all;
-    close all;
+Il corpo del Main sono le seguenti righe di codice. In particolare le prime due definiscono le variabili con i nomi dei file da processare e le restanti chiamano le funzioni sopra descritte.
 
-    tic;
-
-    video_file_name = 'EAD18-20171025A.mp4';
-    audio_file_name = 'EAD18-20171025A.3gpp';
+    video_file_name = 'path_to_video_file';
+    audio_file_name = 'path_to_audio_file';
 
     [xav, xa, freq] = load_files(video_file_name, audio_file_name);
-
-    l_frame = freq*60; % lunghezza frame in campioni per l'analisi
-
-    flag_plot = input('Inserisci 1 per plottare tracce, 0 altrimenti ');
     [xa_trasl, shift] = sync_audio_to_video(freq, xav, xa, flag_plot, l_frame);
-
-    plot_global_delay(freq, xav, xa_trasl, l_frame);
-
     [xa_cleaned, silence_indexes] = remove_unrelated_pieces(freq, xav, xa_trasl, flag_plot, l_frame);
-
-    plot_global_delay(freq, xav, xa_cleaned, l_frame);
-
     [xa_no_drift, drift, track_length] = remove_drift(xav, xa_cleaned, flag_plot, l_frame);
-
-    plot_global_delay(freq, xav, xa_no_drift, l_frame);
-
     xa_final = xa_no_drift(1 : track_length);
     audiowrite('xa_final.wav', xa_final, freq);
 
-    toc;
+Il risultato restituito è il file "xa_final.wav".
 
 ## Installazione
 
+Per eseguire gli script è necessario avere Matlab installato. Gli script sono stati testati dalla versione 2014b in poi.
+Toolbox utilizzati: Signal Processing
 
-## Test
+Una volta scaricati gli script, bisogna sostituire il file path del video e dell'audio rispettivamente nelle due variabili "video_file_name" e "audio_file_name" nello script Main.
+
+Dopodiché è sufficiente eseguire lo script Main (Run).
